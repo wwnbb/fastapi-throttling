@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-throttling"
-version = "0.1.1"
+version = "0.1.2"
 description = "Limit amount of requests to your FastAPI."
 authors = ["wwnbb <wwnbb1@gmail.com>"]
 license = "GPLv2"

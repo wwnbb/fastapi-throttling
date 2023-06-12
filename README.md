@@ -29,7 +29,7 @@ Here's a basic example of how to use the middleware:
 ```python
 
 from fastapi import FastAPI, Request, HTTPException
-from middleware_lib import ThrottlingMiddleware
+from fastapi_throttling import ThrottlingMiddleware
 
 app = FastAPI()
 app.add_middleware(ThrottlingMiddleware, limit=100, window=60)
