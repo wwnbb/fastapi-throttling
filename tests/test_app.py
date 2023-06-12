@@ -1,26 +1,73 @@
-import time
+def test_read_item(client, flush_redis):
+    response = client.get("/items/foo", headers={"X-Token": "coneofsilence"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": "foo",
+        "title": "Foo",
+        "description": "There goes my hero",
+    }
 
-import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from redis import Redis
-
-from fastapi_throttling.throttle import ThrottlingError, ThrottlingMiddleware
+    response = client.get("/items/foo", headers={"X-Token": "hailhydra"})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_ThrottlingMiddleware(app: FastAPI, redisdb: Redis):
-    """
-    Test if app can handle 100 requests per second
-    """
+def test_read_limit(client, flush_redis):
+    for i in range(5):
+        response = client.get(
+            "/items/foo", headers={"X-Token": "coneofsilence"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {
+            "id": "foo",
+            "title": "Foo",
+            "description": "There goes my hero",
+        }
 
-    app.add_middleware(ThrottlingMiddleware, limit=2, window=1, redis=redisdb)
-    client = TestClient(app)
-    client.host = '192.168.0.1'
 
-    with pytest.raises(ThrottlingError):
-        for _ in range(3):
-            client.get("/")
+def test_read_inexistent_item(client, flush_redis):
+    response = client.get("/items/baz", headers={"X-Token": "coneofsilence"})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Item not found"}
 
-    time.sleep(1)
-    for _ in range(2):
-        client.get("/")
+
+def test_create_item(client, flush_redis):
+    response = client.post(
+        "/items/",
+        headers={"X-Token": "coneofsilence"},
+        json={
+            "id": "foobar",
+            "title": "Foo Bar",
+            "description": "The Foo Barters",
+        },
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": "foobar",
+        "title": "Foo Bar",
+        "description": "The Foo Barters",
+    }
+
+
+def test_create_item_bad_token(client, flush_redis):
+    response = client.post(
+        "/items/",
+        headers={"X-Token": "hailhydra"},
+        json={"id": "bazz", "title": "Bazz", "description": "Drop the bazz"},
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid X-Token header"}
+
+
+def test_create_existing_item(client, flush_redis):
+    response = client.post(
+        "/items/",
+        headers={"X-Token": "coneofsilence"},
+        json={
+            "id": "foo",
+            "title": "The Foo ID Stealers",
+            "description": "There goes my stealer",
+        },
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Item already exists"}
