@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 from redis import Redis
 
-from fastapi_throttling.throttle import ThrottlingMiddleware
+from fastapi_throttling import ThrottlingMiddleware
 
 
 @pytest.fixture(scope="session")

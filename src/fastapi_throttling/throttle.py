@@ -1,4 +1,4 @@
-from redis import Redis
+from redis.asyncio import Redis
 from starlette.datastructures import Headers
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -37,15 +37,13 @@ class ThrottlingMiddleware:
         limit: int = 100,
         window: int = 60,
         token_header: str = "Authorization",
-        redis: Redis | None = None,
+        redis: Redis = Redis(),
     ) -> None:
         self.app = app
         self.token_header = token_header
         self.limit = limit
         self.window = window
         self.redis = redis
-        if not self.redis:
-            self.redis = Redis()
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -75,16 +73,18 @@ class ThrottlingMiddleware:
         return
 
     async def has_exceeded_rate_limit(self, identifier: str) -> bool:
-        current_count = self.redis.get(identifier)
+        current_count = await self.redis.get(identifier)
 
         if current_count is None:
             # This is the first request with this identifier within the window
-            self.redis.set(identifier, 1, ex=self.window)  # Start a new window
+            await self.redis.set(
+                identifier, 1, ex=self.window
+            )  # Start a new window
             return False
 
         if int(current_count) < self.limit:
             # Increase the request count
-            self.redis.incr(identifier)
+            await self.redis.incr(identifier)
             return False
 
         return True
