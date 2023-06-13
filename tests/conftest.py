@@ -6,7 +6,7 @@ import pytest
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
-from redis.asyncio import Redis
+from redis import Redis
 
 from fastapi_throttling.throttle import ThrottlingMiddleware
 
