@@ -21,17 +21,6 @@ test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (<0.22)"]
 
 [[package]]
-name = "async-timeout"
-version = "4.0.2"
-description = "Timeout context manager for asyncio programs"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "async-timeout-4.0.2.tar.gz", hash = "sha256:2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15"},
-    {file = "async_timeout-4.0.2-py3-none-any.whl", hash = "sha256:8ca1e4fcf50d07413d66d1a5e416e42cfdf5851c981d679a09851a6853383b3c"},
-]
-
-[[package]]
 name = "black"
 version = "23.3.0"
 description = "The uncompromising code formatter."
@@ -509,20 +498,6 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
-name = "py-redis"
-version = "1.1.1"
-description = "A convenience wrapper for the official Python redis package"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "py-redis-1.1.1.tar.gz", hash = "sha256:f64cfa44dcd69af19348234ba96a2a943e3793248dcbdb267bdefb1751f4002f"},
-    {file = "py_redis-1.1.1-py3-none-any.whl", hash = "sha256:c6ec84fc8251398236f1c0b98f6ad09dc61667c29664efb7d44e95dc5763782e"},
-]
-
-[package.dependencies]
-redis = "*"
-
-[[package]]
 name = "pycodestyle"
 version = "2.10.0"
 description = "Python style guide checker"
@@ -656,9 +631,6 @@ files = [
     {file = "redis-4.5.5.tar.gz", hash = "sha256:dc87a0bdef6c8bfe1ef1e1c40be7034390c2ae02d92dcd0c7ca1729443899880"},
 ]
 
-[package.dependencies]
-async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
-
 [package.extras]
 hiredis = ["hiredis (>=1.0.0)"]
 ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"]
@@ -733,5 +705,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11"
-content-hash = "c52b91d342c170ddf275dc58f91f5459534fd8795b41fa1b79f78258297b863b"
+python-versions = "^3.11.4"
+content-hash = "d3406c014be36ce7fec32c061804a17530d814cbdc3b27f9c14b02fd7429873d"
