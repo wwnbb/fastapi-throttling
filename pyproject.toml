@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-throttling"
-version = "0.1.6"
+version = "0.1.7"
 description = "Limit amount of requests to your FastAPI."
 authors = ["wwnbb <wwnbb1@gmail.com>"]
 license = "GPLv2"
@@ -10,7 +10,7 @@ packages = [{include = "fastapi_throttling", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.11.4"
 fastapi = "^0.96.0"
-redis = "^4.5.5"
+redis = "^4.5.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
