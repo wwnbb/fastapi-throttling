@@ -1,3 +1,6 @@
+from redis import Redis
+
+
 def test_throttle_by_ip(client, flush_redis):
     for i in range(5):
         response = client.get(
@@ -67,3 +70,20 @@ def test_throttle_by_authorization(client, flush_redis):
     )
     assert response.status_code == 429
     assert response.json() == {'detail': 'Too Many Requests'}
+
+
+async def test_benchmark(client, redis_client, flush_redis):
+    for i in range(5000):
+        client.get(
+            "/items/foo",
+            headers={
+                "X-Token": "coneofsilence",
+                "x-forwarded-for": "211.98.250.118",
+            },
+        )
+
+    redis = Redis(host="localhost", port=6379, db=9)
+    count = int(redis.get('throttle:211.98.250.118'))
+    assert count > 0, count
+    ttl = redis.ttl('throttle:211.98.250.118')
+    assert ttl > 0, ttl

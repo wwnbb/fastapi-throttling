@@ -6,7 +6,7 @@ import pytest
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
-from redis import Redis
+from redis.asyncio import Redis
 
 from fastapi_throttling import ThrottlingMiddleware
 
@@ -20,13 +20,13 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 async def redis_client():
-    redis = Redis(host="localhost", port=6379, db=9)
-    yield redis
-    await redis.close()
+    client = Redis(host="localhost", port=6379, db=9)
+    yield client
+    await client.close()
 
 
-@pytest.fixture(scope="session")
-def app(event_loop, redis_client) -> fastapi.FastAPI:
+@pytest.fixture(scope="module")
+def app(redis_client) -> fastapi.FastAPI:
     fake_secret_token = "coneofsilence"
 
     fake_db = {
@@ -72,7 +72,7 @@ def app(event_loop, redis_client) -> fastapi.FastAPI:
     return app
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def client(app) -> TestClient:
     with TestClient(app) as c:
         yield c
