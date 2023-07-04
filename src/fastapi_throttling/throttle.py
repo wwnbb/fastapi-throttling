@@ -87,11 +87,12 @@ class ThrottlingMiddleware:
         try:
             client_ip = self.get_client_ip(scope)
         except Exception as e:
-            logger.exception(e)
+            logger.debug(e)
+            logger.info("cannot retrieve user ip Address")
             client_ip = None
 
         # Throttle by IP
-        if client_ip and await self.has_exceeded_rate_limit(client_ip):
+        if client_ip and await self.has_exceeded_rate_limit(str(client_ip)):
             response = ThrottlingResponse()
             await response(scope, receive, send)
             return
