@@ -1,5 +1,7 @@
-def test_read_item(client, flush_redis):
-    response = client.get("/items/foo", headers={"X-Token": "coneofsilence"})
+async def test_read_item(client, flush_redis):
+    response = await client.get(
+        "/items/foo", headers={"X-Token": "coneofsilence"}
+    )
     assert response.status_code == 200
     assert response.json() == {
         "id": "foo",
@@ -7,14 +9,14 @@ def test_read_item(client, flush_redis):
         "description": "There goes my hero",
     }
 
-    response = client.get("/items/foo", headers={"X-Token": "hailhydra"})
+    response = await client.get("/items/foo", headers={"X-Token": "hailhydra"})
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_read_limit(client, flush_redis):
+async def test_read_limit(client, flush_redis):
     for i in range(5):
-        response = client.get(
+        response = await client.get(
             "/items/foo", headers={"X-Token": "coneofsilence"}
         )
         assert response.status_code == 200
@@ -25,14 +27,16 @@ def test_read_limit(client, flush_redis):
         }
 
 
-def test_read_inexistent_item(client, flush_redis):
-    response = client.get("/items/baz", headers={"X-Token": "coneofsilence"})
+async def test_read_inexistent_item(client, flush_redis):
+    response = await client.get(
+        "/items/baz", headers={"X-Token": "coneofsilence"}
+    )
     assert response.status_code == 404
     assert response.json() == {"detail": "Item not found"}
 
 
-def test_create_item(client, flush_redis):
-    response = client.post(
+async def test_create_item(client, flush_redis):
+    response = await client.post(
         "/items/",
         headers={"X-Token": "coneofsilence"},
         json={
@@ -49,8 +53,8 @@ def test_create_item(client, flush_redis):
     }
 
 
-def test_create_item_bad_token(client, flush_redis):
-    response = client.post(
+async def test_create_item_bad_token(client, flush_redis):
+    response = await client.post(
         "/items/",
         headers={"X-Token": "hailhydra"},
         json={"id": "bazz", "title": "Bazz", "description": "Drop the bazz"},
@@ -59,8 +63,8 @@ def test_create_item_bad_token(client, flush_redis):
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_create_existing_item(client, flush_redis):
-    response = client.post(
+async def test_create_existing_item(client, flush_redis):
+    response = await client.post(
         "/items/",
         headers={"X-Token": "coneofsilence"},
         json={

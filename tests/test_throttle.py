@@ -1,9 +1,9 @@
 from redis import Redis
 
 
-def test_throttle_by_ip(client, flush_redis):
+async def test_throttle_by_ip(client, flush_redis):
     for i in range(5):
-        response = client.get(
+        response = await client.get(
             "/items/foo",
             headers={
                 "X-Token": "coneofsilence",
@@ -17,7 +17,7 @@ def test_throttle_by_ip(client, flush_redis):
             "description": "There goes my hero",
         }
 
-    response = client.get(
+    response = await client.get(
         "/items/foo",
         headers={
             "X-Token": "coneofsilence",
@@ -28,7 +28,7 @@ def test_throttle_by_ip(client, flush_redis):
     assert response.json() == {'detail': 'Too Many Requests'}
 
     for i in range(5):
-        response = client.get(
+        response = await client.get(
             "/items/foo",
             headers={
                 "X-Token": "coneofsilence",
@@ -43,9 +43,9 @@ def test_throttle_by_ip(client, flush_redis):
         }
 
 
-def test_throttle_by_authorization(client, flush_redis):
+async def test_throttle_by_authorization(client, flush_redis):
     for i in range(5):
-        response = client.get(
+        response = await client.get(
             "/items/foo",
             headers={
                 "X-Token": "coneofsilence",
@@ -60,7 +60,7 @@ def test_throttle_by_authorization(client, flush_redis):
             "description": "There goes my hero",
         }
 
-    response = client.get(
+    response = await client.get(
         "/items/foo",
         headers={
             "X-Token": "coneofsilence",
@@ -74,7 +74,7 @@ def test_throttle_by_authorization(client, flush_redis):
 
 async def test_benchmark(client, redis_client, flush_redis):
     for i in range(5000):
-        client.get(
+        await client.get(
             "/items/foo",
             headers={
                 "X-Token": "coneofsilence",

@@ -1,31 +1,35 @@
 import asyncio
+import random
+import string
 from typing import Annotated
 
 import fastapi
 import pytest
+from asgi_lifespan import LifespanManager
 from fastapi import FastAPI, Header, HTTPException
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from pydantic import BaseModel
 from redis.asyncio import Redis
 
 from fastapi_throttling import ThrottlingMiddleware
 
-
 @pytest.fixture(scope="session")
 def event_loop():
-    loop = asyncio.get_event_loop()
+    """Overrides pytest default function scoped event loop"""
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
     yield loop
     loop.close()
 
 
 @pytest.fixture(scope="session")
 async def redis_client():
-    client = Redis(host="localhost", port=6379, db=9)
-    yield client
-    await client.close()
+    r = Redis(host="localhost", port=6379, db=9)
+    yield r
+    await r.close()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def app(redis_client) -> fastapi.FastAPI:
     fake_secret_token = "coneofsilence"
 
@@ -40,7 +44,7 @@ def app(redis_client) -> fastapi.FastAPI:
 
     app = FastAPI()
     app.add_middleware(
-        ThrottlingMiddleware, limit=5, window=1, redis=redis_client
+        ThrottlingMiddleware, limit=5, window=5, redis=redis_client
     )
 
     class Item(BaseModel):
@@ -72,10 +76,15 @@ def app(redis_client) -> fastapi.FastAPI:
     return app
 
 
-@pytest.fixture(scope="module")
-def client(app) -> TestClient:
-    with TestClient(app) as c:
-        yield c
+@pytest.fixture(scope='session')
+async def client(app):
+    """Async http client for FastAPI application, ASGI init signals handled by
+    LifespanManager.
+    """
+    async with LifespanManager(app, startup_timeout=100, shutdown_timeout=100):
+        base_chars = ''.join(random.choices(string.ascii_uppercase, k=4))
+        async with AsyncClient(app=app, base_url=f"http://{base_chars}") as ac:
+            yield ac
 
 
 @pytest.fixture()
